@@ -2,9 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import { SelectBudgetOptions, SelectTravelesList } from "@/constants/options";
+import {
+  AI_PROMPT,
+  SelectBudgetOptions,
+  SelectTravelesList,
+} from "@/constants/options";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { chatSession } from "@/services/GenerateTrip";
 
 function CreateTrip() {
   const [place, setPlace] = useState(null);
@@ -14,7 +19,7 @@ function CreateTrip() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const OnGenerateTrip = () => {
+  const OnGenerateTrip = async () => {
     if (formData?.noOfDays > 8) {
       // Show Toast Notification
       toast.error("Trip duration cannot exceed 8 days", {
@@ -23,7 +28,33 @@ function CreateTrip() {
       });
       return;
     }
-    console.log(formData);
+    if (
+      !formData?.location ||
+      !formData?.noOfDays ||
+      !formData?.budget ||
+      !formData?.traveler
+    ) {
+      // Show Toast Notification
+      toast.error("Please fill all the details", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    const FINAL_PROMPT = AI_PROMPT.replace(
+      "{location}",
+      formData?.location?.label
+    )
+      .replace("{budget}", formData?.budget)
+      .replace("{duration}", formData?.noOfDays)
+      .replace("{groupType}", formData?.traveler);
+
+    console.log(FINAL_PROMPT);
+
+    const result = await chatSession.sendMessage(FINAL_PROMPT);
+
+    console.log(result?.response?.text());
   };
 
   useEffect(() => {
