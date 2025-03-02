@@ -10,16 +10,34 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { chatSession } from "@/services/GenerateTrip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { FcGoogle } from "react-icons/fc";
+import { useGoogleLogin } from "@react-oauth/google";
 
 function CreateTrip() {
   const [place, setPlace] = useState(null);
   const [formData, setFormData] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleInputChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
 
   const OnGenerateTrip = async () => {
+    const user = localStorage.getItem("user");
+
+    if (!user) {
+      setOpenDialog(true);
+      return;
+    }
+
     if (formData?.noOfDays > 8) {
       // Show Toast Notification
       toast.error("Trip duration cannot exceed 8 days", {
@@ -60,6 +78,31 @@ function CreateTrip() {
   useEffect(() => {
     console.log(formData);
   }, [formData]);
+
+  const login = useGoogleLogin({
+    onSuccess: (coderesponse) => GetUserProfile(coderesponse),
+    onError: (error) => console.error(error),
+    clientId: import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID,
+  });
+
+  const GetUserProfile = (tokenInfo) => {
+    axios
+      .get(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo.access_token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenInfo?.access_token}`,
+            Accept: "Application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        localStorage.setItem("user", JSON.stringify(response.data));
+        setOpenDialog(false);
+        OnGenerateTrip();
+      });
+  };
 
   return (
     <div className="sm:px-10 md:px-32 lg:px-56 xl:px-72 px-5 mt-10">
@@ -152,6 +195,29 @@ function CreateTrip() {
         <div className="flex my-10 justify-end">
           <Button onClick={OnGenerateTrip}>Generate Trip</Button>
         </div>
+
+        {/* Dialog Box */}
+        <Dialog open={openDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Sign In Required</DialogTitle>
+              <DialogDescription>
+                <img src="/logo.svg" />
+                <h2 className="font-bold text-lg mt-7">Sign In With Google</h2>
+                <span>
+                  Sign in to the application using Google Auth Security
+                </span>
+                <Button
+                  onClick={login}
+                  className="w-full mt-5 flex gap-4 items-center"
+                >
+                  <FcGoogle className="w-7 h-7" />
+                  Sign In With Google
+                </Button>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Toast Notification Container */}
