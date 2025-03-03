@@ -1,8 +1,46 @@
 import { Button } from "@/components/ui/button";
-import React from "react";
-import { Link } from "react-router";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { GetPlaceDetails } from "@/services/GlobalApi";
+
+const photoReferenceUrl =
+  "https://places.googleapis.com/v1/{NAME}/media?maxHeightPx=600&maxWidthPx=600&key=" +
+  import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
 
 function PlaceCardItem({ place }) {
+  const [photoUrl, setPhotoUrl] = useState("");
+  useEffect(() => {
+    place && GetPlacePhoto();
+  }, [place]);
+
+  const GetPlacePhoto = async () => {
+    try {
+      const placeLabel = place?.place_name;
+      if (!placeLabel) {
+        console.error("No place label found in trip data");
+        return;
+      }
+
+      const data = { textQuery: placeLabel };
+      const res = await GetPlaceDetails(data);
+
+      if (!res || !res.places || res.places.length === 0) {
+        console.error("No places found in response", res);
+        return;
+      }
+
+      console.log("Retrieved photo info:", res.places[0].photos[3].name);
+      const image_url = photoReferenceUrl.replace(
+        "{NAME}",
+        res.places[0].photos[3].name
+      );
+      console.log(res.places[0].photos[3].name);
+      console.log("Image URL:", image_url);
+      setPhotoUrl(image_url);
+    } catch (error) {
+      console.error("Error in GetPlacePhoto:", error);
+    }
+  };
   return (
     <Link
       to={`https://www.google.com/maps/search/?api=1&query=${place?.place_name}`}
@@ -10,7 +48,7 @@ function PlaceCardItem({ place }) {
     >
       <div className="border rounded-xl p-3 mt-2 flex gap-5 hover:scale-105 transition-all hover:shadow-md cursor-pointer">
         <img
-          src="https://placehold.co/600x400.png"
+          src={photoUrl}
           alt="place_image"
           className="w-[130px] h-[130px] rounded-xl"
         />
