@@ -20,11 +20,15 @@ import {
 } from "@/components/ui/dialog";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/services/FirebaseConfig";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function CreateTrip() {
   const [place, setPlace] = useState(null);
   const [formData, setFormData] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -39,7 +43,7 @@ function CreateTrip() {
     }
 
     if (formData?.noOfDays > 8) {
-      // Show Toast Notification
+      // Show toast notification
       toast.error("Trip duration cannot exceed 8 days", {
         position: "top-right",
         autoClose: 3000,
@@ -52,7 +56,6 @@ function CreateTrip() {
       !formData?.budget ||
       !formData?.traveler
     ) {
-      // Show Toast Notification
       toast.error("Please fill all the details", {
         position: "top-right",
         autoClose: 3000,
@@ -60,48 +63,77 @@ function CreateTrip() {
       return;
     }
 
-    const FINAL_PROMPT = AI_PROMPT.replace(
-      "{location}",
-      formData?.location?.label
-    )
-      .replace("{budget}", formData?.budget)
-      .replace("{duration}", formData?.noOfDays)
-      .replace("{groupType}", formData?.traveler);
+    setLoading(true);
 
-    console.log(FINAL_PROMPT);
+    try {
+      const FINAL_PROMPT = AI_PROMPT.replace(
+        "{location}",
+        formData?.location?.label
+      )
+        .replace("{budget}", formData?.budget)
+        .replace("{duration}", formData?.noOfDays)
+        .replace("{groupType}", formData?.traveler);
 
-    const result = await chatSession.sendMessage(FINAL_PROMPT);
-
-    console.log(result?.response?.text());
+      // console.log(FINAL_PROMPT);
+      const result = await chatSession.sendMessage(FINAL_PROMPT);
+      // console.log(result?.response?.text());
+      await SaveAITrip(result?.response?.text());
+    } catch (error) {
+      toast.error("Error generating trip. Please try again.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+  // useEffect(() => {
+  //   console.log(formData);
+  // }, [formData]);
 
   const login = useGoogleLogin({
     onSuccess: (coderesponse) => GetUserProfile(coderesponse),
-    onError: (error) => console.error(error),
+    onError: (error) => console.error("Google Login Error:", error),
     clientId: import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID,
   });
 
-  const GetUserProfile = (tokenInfo) => {
-    axios
-      .get(
+  const GetUserProfile = async (tokenInfo) => {
+    try {
+      const response = await fetch(
         `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo.access_token}`,
         {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${tokenInfo?.access_token}`,
-            Accept: "Application/json",
+            Accept: "application/json",
           },
         }
-      )
-      .then((response) => {
-        console.log(response);
-        localStorage.setItem("user", JSON.stringify(response.data));
-        setOpenDialog(false);
-        OnGenerateTrip();
-      });
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // console.log(data);
+      localStorage.setItem("user", JSON.stringify(data));
+      setOpenDialog(false);
+      OnGenerateTrip();
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  const SaveAITrip = async (tripData) => {
+    setLoading(true);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const docID = Date.now().toString();
+    await setDoc(doc(db, "trips", docID), {
+      id: docID,
+      userSelection: formData,
+      tripData: JSON.parse(tripData),
+      userEmail: user.email,
+    });
+    setLoading(false);
   };
 
   return (
@@ -193,14 +225,20 @@ function CreateTrip() {
 
         {/* Generate Trip Button */}
         <div className="flex my-10 justify-end">
-          <Button onClick={OnGenerateTrip}>Generate Trip</Button>
+          <Button disabled={loading} onClick={OnGenerateTrip}>
+            {loading ? (
+              <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin" />
+            ) : (
+              "Generate Trip"
+            )}
+          </Button>
         </div>
 
         {/* Dialog Box */}
-        <Dialog open={openDialog}>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogContent>
+            <DialogTitle className="sr-only">Sign In With Google</DialogTitle>
             <DialogHeader>
-              <DialogTitle>Sign In Required</DialogTitle>
               <DialogDescription>
                 <img src="/logo.svg" />
                 <h2 className="font-bold text-lg mt-7">Sign In With Google</h2>
