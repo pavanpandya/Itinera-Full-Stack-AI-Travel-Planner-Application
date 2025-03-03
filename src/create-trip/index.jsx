@@ -127,13 +127,26 @@ function CreateTrip() {
     setLoading(true);
     const user = JSON.parse(localStorage.getItem("user"));
     const docID = Date.now().toString();
-    await setDoc(doc(db, "trips", docID), {
-      id: docID,
-      userSelection: formData,
-      tripData: JSON.parse(tripData),
-      userEmail: user.email,
-    });
-    setLoading(false);
+
+    try {
+      await setDoc(doc(db, "trips", docID), {
+        id: docID,
+        userSelection: formData,
+        tripData: JSON.parse(tripData),
+        userEmail: user.email,
+      });
+
+      // Show success toast notification after trip is saved
+      toast.success("Trip generated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error("Error saving trip:", error);
+      toast.error("Error saving trip. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
