@@ -1,12 +1,12 @@
-import React from 'react'
-import { Button } from '../ui/Button'
+import React from "react";
+import { Button } from "@/components/ui/button";
 
 function Header() {
   return (
     <div className="p-2 shadow-sm flex justify-between items-center px-5">
-      <img src="/logo.svg" alt="Logo" /> 
+      <img src="/logo.svg" alt="Logo" />
       <div>
-        <Button>Sign In</Button> 
+        <Button>Sign In</Button>
       </div>
     </div>
   );
