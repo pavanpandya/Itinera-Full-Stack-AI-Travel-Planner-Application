@@ -23,12 +23,14 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/services/FirebaseConfig";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useNavigate } from "react-router";
 
 function CreateTrip() {
   const [place, setPlace] = useState(null);
   const [formData, setFormData] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleInputChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -141,6 +143,9 @@ function CreateTrip() {
         position: "top-right",
         autoClose: 3000,
       });
+
+      // Redirect to view trip page
+      navigate(`/view-trip/${docID}`);
     } catch (error) {
       console.error("Error saving trip:", error);
       toast.error("Error saving trip. Please try again.");

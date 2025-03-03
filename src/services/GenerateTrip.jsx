@@ -24,7 +24,7 @@ export const chatSession = model.startChat({
         {
           text: `Generate a personalized travel itinerary for the location: {location} 
             with a {budget} budget and duration of {duration} days for {groupType}. 
-            Requirements: Provide at least one hotel option with full details (name, address, price, image URL, geo-coordinates, rating, and description). 
+            Requirements: Provide more than one hotel option with full details (name, address, price, image URL, geo-coordinates, rating, and description). 
             Include an itinerary plan for each day ({duration} days), listing multiple places to visit per day. 
             Each place must include a name, details, image URL, coordinates, ticket pricing, and estimated travel time. 
             Please use accurate and up-to-date real-world data, including an image URL (ensure the image is present) and the relevant location information.
