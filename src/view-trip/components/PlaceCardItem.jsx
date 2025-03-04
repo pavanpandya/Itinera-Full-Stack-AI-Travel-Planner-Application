@@ -25,13 +25,13 @@ function PlaceCardItem({ place }) {
         return;
       }
 
-      console.log("Retrieved photo info:", res.places[0].photos[3].name);
+      // console.log("Retrieved photo info:", res.places[0].photos[3].name);
       const image_url = photoReferenceUrl.replace(
         "{NAME}",
         res.places[0].photos[3].name
       );
-      console.log(res.places[0].photos[3].name);
-      console.log("Image URL:", image_url);
+      // console.log(res.places[0].photos[3].name);
+      // console.log("Image URL:", image_url);
       setPhotoUrl(image_url);
     } catch (error) {
       console.error("Error in GetPlacePhoto:", error);
@@ -44,7 +44,7 @@ function PlaceCardItem({ place }) {
     >
       <div className="border rounded-xl p-3 mt-2 flex gap-5 hover:scale-105 transition-all hover:shadow-md cursor-pointer">
         <img
-          src={photoUrl}
+          src={photoUrl ? photoUrl : "https://placehold.co/130x130"}
           alt="place_image"
           className="w-[130px] h-[130px] rounded-xl"
         />

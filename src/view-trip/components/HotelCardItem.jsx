@@ -30,13 +30,13 @@ function HotelCardItem({ hotel }) {
         return;
       }
 
-      console.log("Retrieved photo info:", place.photos[3].name);
+      // console.log("Retrieved photo info:", place.photos[3].name);
       const image_url = photoReferenceUrl.replace(
         "{NAME}",
         place.photos[3].name
       );
-      console.log(place.photos[3].name);
-      console.log("Image URL:", image_url);
+      // console.log(place.photos[3].name);
+      // console.log("Image URL:", image_url);
       setPhotoUrl(image_url);
     } catch (error) {
       console.error("Error in GetPlacePhoto:", error);
@@ -49,7 +49,7 @@ function HotelCardItem({ hotel }) {
         target="_blank"
       >
         <img
-          src={photoUrl}
+          src={photoUrl ? photoUrl : "https://placehold.co/130x130"}
           alt="hotel_image"
           className="rounded-xl h-[200px] w-full object-cover"
         />

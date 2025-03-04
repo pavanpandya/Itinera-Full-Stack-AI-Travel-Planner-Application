@@ -33,13 +33,13 @@ function InfoSection({ trip }) {
         return;
       }
 
-      console.log("Retrieved photo info:", place.photos[3].name);
+      // console.log("Retrieved photo info:", place.photos[3].name);
       const image_url = photoReferenceUrl.replace(
         "{NAME}",
         place.photos[3].name
       );
-      console.log(place.photos[3].name);
-      console.log("Image URL:", image_url);
+      // console.log(place.photos[3].name);
+      // console.log("Image URL:", image_url);
       setPhotoUrl(image_url);
     } catch (error) {
       console.error("Error in GetPlacePhoto:", error);
@@ -50,7 +50,7 @@ function InfoSection({ trip }) {
     <div className="p-4 md:p-6">
       {/* Image Section */}
       <img
-        src={photoUrl}
+        src={photoUrl ? photoUrl : "https://placehold.co/130x130"}
         className="h-[240px] sm:h-[300px] md:h-[340px] w-full object-cover rounded-xl"
         alt="location_image"
       />
