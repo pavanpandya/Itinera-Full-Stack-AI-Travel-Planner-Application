@@ -3,11 +3,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { RiMoneyDollarCircleFill } from "react-icons/ri";
 import { IoIosPeople, IoIosSend } from "react-icons/io";
 import { Button } from "@/components/ui/button";
-import { GetPlaceDetails } from "@/services/GlobalApi";
-
-const photoReferenceUrl =
-  "https://places.googleapis.com/v1/{NAME}/media?maxHeightPx=600&maxWidthPx=600&key=" +
-  import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+import { GetPlaceDetails, photoReferenceUrl } from "@/services/GlobalApi";
 
 function InfoSection({ trip }) {
   const [photoUrl, setPhotoUrl] = useState();

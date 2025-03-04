@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetPlaceDetails } from "@/services/GlobalApi";
-
-const photoReferenceUrl =
-  "https://places.googleapis.com/v1/{NAME}/media?maxHeightPx=600&maxWidthPx=600&key=" +
-  import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+import { GetPlaceDetails, photoReferenceUrl } from "@/services/GlobalApi";
 
 function HotelCardItem({ hotel }) {
   const [photoUrl, setPhotoUrl] = useState("");
