@@ -73,9 +73,19 @@ function Header() {
       <div>
         {user ? (
           <div className="flex items-center gap-3">
-            <Button variant={"outline"} className={"rounded-full"}>
-              My Trip
-            </Button>
+            {/* Using <a> instead of <Link> because <Header /> is outside <Routes>, 
+                meaning it doesn't have access to React Router’s context. 
+                <Link> wouldn't work properly here, so we use <a> to navigate to "/my-trips". */}
+            <a href="/create-trip">
+              <Button variant={"outline"} className={"rounded-full"}>
+                + Create Trip
+              </Button>
+            </a>
+            <a href="/my-trips">
+              <Button variant={"outline"} className={"rounded-full"}>
+                My Trips
+              </Button>
+            </a>
             <Popover>
               <PopoverTrigger>
                 <img

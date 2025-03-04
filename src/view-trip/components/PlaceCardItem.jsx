@@ -6,8 +6,10 @@ import { GetPlaceDetails, photoReferenceUrl } from "@/services/GlobalApi";
 function PlaceCardItem({ place }) {
   const [photoUrl, setPhotoUrl] = useState("");
   useEffect(() => {
-    place && GetPlacePhoto();
-  }, [place]);
+    if (place?.place_name) {
+      GetPlacePhoto();
+    }
+  }, [place?.place_name]);
 
   const GetPlacePhoto = async () => {
     try {

@@ -8,12 +8,15 @@ import { GetPlaceDetails, photoReferenceUrl } from "@/services/GlobalApi";
 function InfoSection({ trip }) {
   const [photoUrl, setPhotoUrl] = useState();
   useEffect(() => {
-    trip && GetPlacePhoto();
-  }, [trip]);
+    if (trip?.userSelection?.location?.label) {
+      GetPlacePhoto();
+    }
+  }, [trip?.userSelection?.location?.label]);
 
   const GetPlacePhoto = async () => {
     try {
       const placeLabel = trip?.userSelection?.location?.label;
+      // console.log("Place Label:", placeLabel);
       if (!placeLabel) {
         console.error("No place label found in trip data");
         return;
